@@ -5,6 +5,9 @@ WINDOW_HEIGHT = 720
 -- https://github.com/Ulydev/push
 push = require 'push' -- This is how we call modules in LUA
 
+-- https://github.com/vrld/hump/blob/master/class.lua
+Class = require 'class'
+
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
