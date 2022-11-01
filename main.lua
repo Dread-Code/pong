@@ -14,6 +14,10 @@ function love.load()
     -- use nearest-neighbor filtering on upscaling and downscaling to prevent blurring of text 
     -- and graphics; try removing this function to see the difference!
     love.graphics.setDefaultFilter('nearest', 'nearest') -- if we delete this line the letter will si blured
+    
+    -- math.randomseed -> help to set a random seed
+    -- os.time --> every second the number returned change
+    math.randomseed(os.time())
 
     -- gettiing the font 
     -- love.graphics.newFont(fontFile, size)
@@ -46,27 +50,72 @@ function love.load()
     player1Y = 30
     player2Y = VIRTUAL_HEIGHT - 50
 
+    -- Position variables for our ball when play starts
+    ballX = VIRTUAL_WIDTH / 2 - 2
+    ballY = VIRTUAL_HEIGHT / 2 - 2
+
+    -- math.random returns a random value between the left and right number
+    ballDX = math.random(2) == 1 and 100 or -100
+    ballDY = math.random(-50, 50)
+
+    -- game state variable used to transition between different parts of the game
+    -- (used for beginning, menus, main game, high score list, etc.)
+    -- we will use this to determine behavior during render and update
+    gameState = 'start'
+
 end
 
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
+    elseif key == 'enter' or key == 'return' then
+        if gameState == 'start' then
+            gameState = 'play'
+        else
+            gameState = 'start'
+            
+            -- start ball's position in the middle of the screen
+            ballX = VIRTUAL_WIDTH / 2 - 2
+            ballY = VIRTUAL_HEIGHT / 2 - 2
+
+            -- given ball's x and y velocity a random starting value
+            -- the and/or pattern here is Lua's way of accomplishing a ternary operation
+            -- in other programming languages like C
+            ballDX = math.random(2) == 1 and 100 or -100
+            ballDY = math.random(-50, 50) * 1.5
+        end
     end
 end
-
+--[[
+    Something you have to keep in mind, this function is called in every frame
+]]
 function love.update(dt)
     if love.keyboard.isDown('w') then
-        player1Y = player1Y + -PADDLE_SPEED * dt
+        -- math.max take the Maximum  nummber between the number given
+        --[[
+            math.max(2,3,4,7)
+                -> 7
+        ]]
+        player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt)
     elseif love.keyboard.isDown('s') then 
-        player1Y = player1Y + PADDLE_SPEED * dt
+        -- math.min take the Minimum nummber between the number given 
+        --[[
+            math.min(0,5, -3 , -10)
+                -> -10
+        ]]
+        player1Y =  math.min(VIRTUAL_HEIGHT -20, player1Y + PADDLE_SPEED * dt)
     end
 
     if love.keyboard.isDown('up') then
-        player2Y = player2Y + -PADDLE_SPEED * dt
+        player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
     elseif love.keyboard.isDown('down') then 
-        player2Y = player2Y + PADDLE_SPEED * dt
+        player2Y = math.min(VIRTUAL_HEIGHT - 20, player2Y + PADDLE_SPEED * dt)
     end
 
+    if gameState == 'play' then
+       ballX = ballX + ballDX * dt
+       ballY = ballY + ballDY * dt 
+    end
 end
 
 
@@ -90,7 +139,7 @@ function love.draw()
     love.graphics.rectangle('fill', 10, player1Y, 5, 20)
 
     -- render the ball
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 4, 4)
+    love.graphics.rectangle('fill', ballX,  ballY, 4, 4)
 
     -- render the right paddle
     love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
