@@ -8,6 +8,8 @@ push = require 'push' -- This is how we call modules in LUA
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
+PADDLE_SPEED = 200
+
 function love.load()
     -- use nearest-neighbor filtering on upscaling and downscaling to prevent blurring of text 
     -- and graphics; try removing this function to see the difference!
@@ -35,12 +37,36 @@ function love.load()
         vsync = true
     })
 
+    -- initialize score variables, used for rendering on the screen and keeping
+    -- track of the winner
+    player1Score = 0
+    player2Score = 0
+
+    -- paddle positions on the Y axis (they can only move up or down)
+    player1Y = 30
+    player2Y = VIRTUAL_HEIGHT - 50
+
 end
 
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
+end
+
+function love.update(dt)
+    if love.keyboard.isDown('w') then
+        player1Y = player1Y + -PADDLE_SPEED * dt
+    elseif love.keyboard.isDown('s') then 
+        player1Y = player1Y + PADDLE_SPEED * dt
+    end
+
+    if love.keyboard.isDown('up') then
+        player2Y = player2Y + -PADDLE_SPEED * dt
+    elseif love.keyboard.isDown('down') then 
+        player2Y = player2Y + PADDLE_SPEED * dt
+    end
+
 end
 
 
@@ -61,13 +87,13 @@ function love.draw()
 
     -- render a vertical rectangle
     -- love.graphics.rectangle(mode, x ,y, width, height)
-    love.graphics.rectangle('fill', 10, 30, 5, 20)
+    love.graphics.rectangle('fill', 10, player1Y, 5, 20)
 
     -- render the ball
     love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 4, 4)
 
     -- render the right paddle
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
 
     push:finish()
     
