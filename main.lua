@@ -13,6 +13,13 @@ function love.load()
     -- and graphics; try removing this function to see the difference!
     love.graphics.setDefaultFilter('nearest', 'nearest') -- if we delete this line the letter will si blured
 
+    -- gettiing the font 
+    -- love.graphics.newFont(fontFile, size)
+    retroFont = love.graphics.newFont('font.ttf', 8)
+
+    -- Setting the font 
+    love.graphics.setFont(retroFont)
+
     -- This fucntion help us to set a screen size
     -- love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
     --  fullscreen = false,
@@ -38,15 +45,29 @@ end
 
 
 function love.draw()
-    
+
     push:start()
+
+    -- set a background or clear the screen with a color
+    -- love.graphics.clear(r, g, b, a)
+    love.graphics.clear(40/255, 45/255, 52/255, 255/255)
 
     love.graphics.printf(
         "Hello World", -- What do you want tu put on screen
         0, -- x position 
-        VIRTUAL_HEIGHT / 2, -- y position
+        20, -- y position
         VIRTUAL_WIDTH, -- Create lines horizontal depending on the number
         'center') -- aligment mode
+
+    -- render a vertical rectangle
+    -- love.graphics.rectangle(mode, x ,y, width, height)
+    love.graphics.rectangle('fill', 10, 30, 5, 20)
+
+    -- render the ball
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 4, 4)
+
+    -- render the right paddle
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
     push:finish()
     
