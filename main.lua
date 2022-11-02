@@ -5,6 +5,16 @@ WINDOW_HEIGHT = 720
 -- https://github.com/Ulydev/push
 push = require 'push' -- This is how we call modules in LUA
 
+-- the "Class" library we're using will allow us to represent anything in
+-- our game as code, rather than keeping track of many disparate variables and
+-- methods
+--
+-- https://github.com/vrld/hump/blob/master/class.lua
+Class = require 'class'
+
+require 'Ball'
+require 'Paddle'
+
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
 
@@ -46,17 +56,10 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    -- paddle positions on the Y axis (they can only move up or down)
-    player1Y = 30
-    player2Y = VIRTUAL_HEIGHT - 50
+    player1 = Paddle(10, 30, 5, 20)
+    player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
-    -- Position variables for our ball when play starts
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
-
-    -- math.random returns a random value between the left and right number
-    ballDX = math.random(2) == 1 and 100 or -100
-    ballDY = math.random(-50, 50)
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
     -- game state variable used to transition between different parts of the game
     -- (used for beginning, menus, main game, high score list, etc.)
@@ -74,18 +77,11 @@ function love.keypressed(key)
         else
             gameState = 'start'
             
-            -- start ball's position in the middle of the screen
-            ballX = VIRTUAL_WIDTH / 2 - 2
-            ballY = VIRTUAL_HEIGHT / 2 - 2
-
-            -- given ball's x and y velocity a random starting value
-            -- the and/or pattern here is Lua's way of accomplishing a ternary operation
-            -- in other programming languages like C
-            ballDX = math.random(2) == 1 and 100 or -100
-            ballDY = math.random(-50, 50) * 1.5
+            ball:reset()
         end
     end
 end
+
 --[[
     Something you have to keep in mind, this function is called in every frame
 ]]
@@ -96,31 +92,36 @@ function love.update(dt)
             math.max(2,3,4,7)
                 -> 7
         ]]
-        player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt)
+        player1.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('s') then 
         -- math.min take the Minimum nummber between the number given 
         --[[
             math.min(0,5, -3 , -10)
                 -> -10
         ]]
-        player1Y =  math.min(VIRTUAL_HEIGHT -20, player1Y + PADDLE_SPEED * dt)
+        player1.dy = PADDLE_SPEED
+    else
+        player1.dy = 0
     end
 
     if love.keyboard.isDown('up') then
-        player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
+        player2.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('down') then 
-        player2Y = math.min(VIRTUAL_HEIGHT - 20, player2Y + PADDLE_SPEED * dt)
+        player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
     end
 
     if gameState == 'play' then
-       ballX = ballX + ballDX * dt
-       ballY = ballY + ballDY * dt 
+       ball:update(dt)
     end
+
+    player1:update(dt)
+    player2:update(dt)
 end
 
 
 function love.draw()
-
     push:start()
 
     -- set a background or clear the screen with a color
@@ -136,13 +137,13 @@ function love.draw()
 
     -- render a vertical rectangle
     -- love.graphics.rectangle(mode, x ,y, width, height)
-    love.graphics.rectangle('fill', 10, player1Y, 5, 20)
+    player1:render()
 
     -- render the ball
-    love.graphics.rectangle('fill', ballX,  ballY, 4, 4)
+    ball:render()
 
     -- render the right paddle
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
+    player2:render()
 
     push:finish()
     
