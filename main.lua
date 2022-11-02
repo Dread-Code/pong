@@ -24,6 +24,8 @@ function love.load()
     -- use nearest-neighbor filtering on upscaling and downscaling to prevent blurring of text 
     -- and graphics; try removing this function to see the difference!
     love.graphics.setDefaultFilter('nearest', 'nearest') -- if we delete this line the letter will si blured
+
+    love.window.setTitle('Pong')
     
     -- math.randomseed -> help to set a random seed
     -- os.time --> every second the number returned change
@@ -32,6 +34,7 @@ function love.load()
     -- gettiing the font 
     -- love.graphics.newFont(fontFile, size)
     retroFont = love.graphics.newFont('font.ttf', 8)
+    scoreFont = love.graphics.newFont('font.ttf', 32)
 
     -- Setting the font 
     love.graphics.setFont(retroFont)
@@ -135,6 +138,12 @@ function love.draw()
         VIRTUAL_WIDTH, -- Create lines horizontal depending on the number
         'center') -- aligment mode
 
+    love.graphics.setFont(scoreFont)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, 
+        VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
+        VIRTUAL_HEIGHT / 3)
+
     -- render a vertical rectangle
     -- love.graphics.rectangle(mode, x ,y, width, height)
     player1:render()
@@ -145,6 +154,14 @@ function love.draw()
     -- render the right paddle
     player2:render()
 
+    displayFPS()
+
     push:finish()
     
+end
+
+function displayFPS()
+    love.graphics.setFont(retroFont)
+    love.graphics.setColor(0, 255, 0, 255)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
 end
