@@ -89,6 +89,51 @@ end
     Something you have to keep in mind, this function is called in every frame
 ]]
 function love.update(dt)
+
+    if gameState == 'play' then
+        --[[
+            When the ball detects that te paddle touch it we turn 
+            the velocity and increasing slightly, then we shift x position 
+            from left to right.
+        ]]
+        if ball:collides(player1) then
+            ball.dx = -ball.dx * 1.03
+            ball.x = player1.x + 5
+            --[[
+                Here I try to keeping the velocity in the same direction
+                but randomize it
+            ]]
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        if ball:collides(player2) then
+            ball.dx = -ball.dx * 1.03
+            ball.x = player2.x - 4
+
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+        --[[
+            detect upper and lower screen boundary collision and reverse if collided
+        ]]
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4
+            ball.dy = -ball.dy
+        end
+    end
+    
     if love.keyboard.isDown('w') then
         -- math.max take the Maximum  nummber between the number given
         --[[
