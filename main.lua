@@ -77,9 +77,8 @@ function love.keypressed(key)
     elseif key == 'enter' or key == 'return' then
         if gameState == 'start' then
             gameState = 'play'
-        else
-            gameState = 'start'
-            ball:reset()
+        elseif gameState == 'serve' then
+            gameState = 'play'
         end
     end
 end
@@ -88,8 +87,14 @@ end
     Something you have to keep in mind, this function is called in every frame
 ]]
 function love.update(dt)
-
-    if gameState == 'play' then
+    if  gameState == 'serve' then
+        ball.dy = math.random(-50, 50)
+        if servingPlayer == 1 then
+            ball.dx = math.random(140, 200)
+        else
+            ball.dx = -math.random(140, 200)
+        end
+    elseif gameState == 'play' then
         --[[
             When the ball detects that te paddle touch it we turn 
             the velocity and increasing slightly, then we shift x position 
@@ -189,19 +194,19 @@ function love.draw()
     -- set a background or clear the screen with a color
     -- love.graphics.clear(r, g, b, a)
     love.graphics.clear(40/255, 45/255, 52/255, 255/255)
-
-    love.graphics.printf(
-        "Hello World", -- What do you want tu put on screen
-        0, -- x position 
-        20, -- y position
-        VIRTUAL_WIDTH, -- Create lines horizontal depending on the number
-        'center') -- aligment mode
-
-    love.graphics.setFont(scoreFont)
-    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, 
-        VIRTUAL_HEIGHT / 3)
-    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
-        VIRTUAL_HEIGHT / 3)
+    displayScore()
+    if gameState == 'start' then
+        love.graphics.setFont(retroFont)
+        love.graphics.printf('Welcome to Pong!', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to begin!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'serve' then
+        love.graphics.setFont(retroFont)
+        love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 
+            0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'play' then
+        -- no UI messages to display in play
+    end
 
     -- render a vertical rectangle
     -- love.graphics.rectangle(mode, x ,y, width, height)
@@ -215,7 +220,7 @@ function love.draw()
 
     displayFPS()
 
-    push:finish()
+    push:finish() 
     
 end
 
@@ -223,4 +228,17 @@ function displayFPS()
     love.graphics.setFont(retroFont)
     love.graphics.setColor(0, 255, 0, 255)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+end
+
+--[[
+    Simply draws the score to the screen.
+]]
+function displayScore()
+    -- draw score on the left and right center of the screen
+    -- need to switch font to draw before actually printing
+    love.graphics.setFont(scoreFont)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, 
+        VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
+        VIRTUAL_HEIGHT / 3)
 end
