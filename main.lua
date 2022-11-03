@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -77,6 +78,10 @@ function love.keypressed(key)
     elseif key == 'enter' or key == 'return' then
         if gameState == 'start' then
             gameState = 'play'
+        elseif gameState == 'done' then
+            gameState = 'start'
+            player1Score = 0
+            player2Score = 0
         elseif gameState == 'serve' then
             gameState = 'play'
         end
@@ -141,15 +146,25 @@ function love.update(dt)
     if ball.x < 0 then
         servingPlayer = 1
         player2Score = player2Score + 1
-        ball:reset()
-        gameState = 'serve' 
+       
+        if player2Score == 10 then
+            doneLimbo(2)
+        else 
+            ball:reset()
+            gameState = 'serve'
+        end
     end
 
     if ball.x > VIRTUAL_WIDTH then
         servingPlayer = 2
         player1Score = player1Score + 1
-        ball:reset()
-        gameState = 'serve' 
+
+        if player1Score == 10 then
+            doneLimbo(1)
+        else 
+            ball:reset()
+            gameState = 'serve'
+        end
     end
 
     -- player movement
@@ -187,6 +202,12 @@ function love.update(dt)
     player2:update(dt)
 end
 
+function doneLimbo(winner)
+    gameState = 'done'
+    winnerPlayer = winner
+    ball:reset()
+end
+
 
 function love.draw()
     push:start()
@@ -204,6 +225,11 @@ function love.draw()
         love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 
             0, 10, VIRTUAL_WIDTH, 'center')
         love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'done' then
+        -- no UI messages to display in play
+        love.graphics.setFont(retroFont)
+        love.graphics.printf('Player ' .. winnerPlayer.. ' Wins!', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to restart!', 0, 20, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'play' then
         -- no UI messages to display in play
     end
@@ -241,4 +267,8 @@ function displayScore()
         VIRTUAL_HEIGHT / 3)
     love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
         VIRTUAL_HEIGHT / 3)
+end
+
+function displaylog(log)
+    love.graphics.print('LOG: '.. tostring(log), VIRTUAL_WIDTH - 100, 10)
 end
