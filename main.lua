@@ -79,7 +79,6 @@ function love.keypressed(key)
             gameState = 'play'
         else
             gameState = 'start'
-            
             ball:reset()
         end
     end
@@ -133,7 +132,22 @@ function love.update(dt)
             ball.dy = -ball.dy
         end
     end
-    
+
+    if ball.x < 0 then
+        servingPlayer = 1
+        player2Score = player2Score + 1
+        ball:reset()
+        gameState = 'serve' 
+    end
+
+    if ball.x > VIRTUAL_WIDTH then
+        servingPlayer = 2
+        player1Score = player1Score + 1
+        ball:reset()
+        gameState = 'serve' 
+    end
+
+    -- player movement
     if love.keyboard.isDown('w') then
         -- math.max take the Maximum  nummber between the number given
         --[[
