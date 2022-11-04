@@ -35,10 +35,17 @@ function love.load()
     -- gettiing the font 
     -- love.graphics.newFont(fontFile, size)
     retroFont = love.graphics.newFont('font.ttf', 8)
+    largeFont = love.graphics.newFont('font.ttf', 16)
     scoreFont = love.graphics.newFont('font.ttf', 32)
-
     -- Setting the font 
     love.graphics.setFont(retroFont)
+
+    sounds = {
+        ['paddle_hit'] = love.audio.newSource('sounds/paddle_hit.wav', 'static'),
+        ['score'] = love.audio.newSource('sounds/score.wav', 'static'),
+        ['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav', 'static')
+    }
+
 
     -- This fucntion help us to set a screen size
     -- love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -117,6 +124,8 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
+
+            sounds['paddle_hit']:play()
         end
 
         if ball:collides(player2) then
@@ -128,6 +137,7 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
+            sounds['paddle_hit']:play()
         end
         --[[
             detect upper and lower screen boundary collision and reverse if collided
@@ -135,17 +145,20 @@ function love.update(dt)
         if ball.y <= 0 then
             ball.y = 0
             ball.dy = -ball.dy
+            sounds['wall_hit']:play()
         end
 
         if ball.y >= VIRTUAL_HEIGHT - 4 then
             ball.y = VIRTUAL_HEIGHT - 4
             ball.dy = -ball.dy
+            sounds['wall_hit']:play()
         end
     end
 
     if ball.x < 0 then
         servingPlayer = 1
         player2Score = player2Score + 1
+        sounds['score']:play()
        
         if player2Score == 10 then
             doneLimbo(2)
@@ -158,6 +171,7 @@ function love.update(dt)
     if ball.x > VIRTUAL_WIDTH then
         servingPlayer = 2
         player1Score = player1Score + 1
+        sounds['score']:play()
 
         if player1Score == 10 then
             doneLimbo(1)
